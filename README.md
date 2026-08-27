@@ -1,291 +1,106 @@
 # F.R.I.D.A.Y. — by Axolotl BR
 
-**File Retrieval, Indexing, Directory & Archiving Y-system**
+Ferramenta desktop de organização inteligente de arquivos, pastas, vídeos e
+projetos de trabalho. Roda 100% local — nada é enviado para a internet.
 
-o F.R.I.D.A.Y. é um organizador de arquivos pra windows que usa regras e automações pra tentar deixar seu pc menos bagunçado.
+**Filosofia:** *Understand first. Organize second. Delete never.*
 
-a ideia é organizar arquivos, pastas, vídeos, clipes e projetos sem sair movendo coisa aleatoriamente.
+## Como rodar
 
-tudo roda localmente. nada dos seus arquivos é enviado pra internet.
-
-> *understand first. organize second. delete never.*
-
----
-
-## como rodar
-
-você só precisa de **python 3.9+**.
-
-não precisa instalar um monte de pacote. a interface usa `tkinter`.
+Precisa apenas de Python 3.9+ (Windows já vem com ele, ou baixe em
+python.org). A interface usa só a biblioteca padrão (`tkinter`).
 
 ```bash
 python friday_gui.py
 ```
 
-depois é só abrir o programa, clicar em **ESCOLHER PASTA** e selecionar a pasta que você quer organizar.
+Isso abre a janela do F.R.I.D.A.Y. Clique em **ESCOLHER PASTA** e selecione
+a pasta que você quer organizar (por exemplo, Downloads, ou uma pasta de
+projetos).
 
-se estiver usando pela primeira vez, começa pelo modo **SAFE**.
+**Opcional, mas recomendado** — para gerar planilhas `.xlsx` de verdade
+(formatadas, com filtro e cabeçalho colorido) em vez de `.csv`:
 
----
-
-## o que ele faz
-
-### arquivos
-
-o F.R.I.D.A.Y. consegue separar arquivos por tipo:
-
-* documentos
-* planilhas
-* apresentações
-* PDFs
-* imagens
-* vídeos
-* música
-* compactados
-* programas
-* código
-
----
-
-### vídeos e jogos
-
-vídeos de jogos têm uma organização própria.
-
-o F.R.I.D.A.Y. tenta descobrir qual jogo é pelo nome do arquivo ou da pasta e também tenta identificar o tipo do vídeo.
-
-por exemplo:
-
-```text
-VIDEOS/
-└── GAMES/
-    └── CS2/
-        ├── Clips/
-        ├── Highlights/
-        ├── Gameplay/
-        └── Recordings/
+```bash
+pip install openpyxl
 ```
 
-se quiser, também dá pra adicionar seus próprios jogos e palavras-chave nas **Regras**.
+Sem isso, o F.R.I.D.A.Y. ainda gera a planilha, só que em `.csv` (que abre
+normalmente no Excel/Google Sheets).
 
----
+## O que ele faz
 
-### projetos
+- **Separa arquivos por tipo**: Documentos, Planilhas, Apresentações, PDFs,
+  Imagens, Vídeos, Música, Compactados, Programas, Código.
+- **Separa por projeto**: pastas com `.git`, `package.json`,
+  `requirements.txt`, arquivos `.prproj`/`.aep` etc. são reconhecidas como
+  projetos inteiros e movidas para `PROJECTS/CODE/...` ou
+  `PROJECTS/EDITING/...` sem mexer no conteúdo interno — nenhum projeto
+  quebra.
+- **Identifica vídeos de jogos** pelo nome do arquivo/pasta (ex.: "CS2" ou
+  "Deadlock" no nome vai para `VIDEOS/GAMES/<Jogo>/<Tipo>`). Você adiciona
+  seus próprios jogos na tela **Regras**.
+- **Dá um ID e tags para cada item organizado** (ex.: `FRD-00042`, tags
+  `["cs2", "highlights", "mp4", "2026"]`). Isso fica registrado no catálogo
+  interno (`.friday/catalogo.json`) e é a base da planilha exportável.
+- **Encontra duplicados de verdade** (por hash do conteúdo, não só nome) —
+  vão para `_Duplicados/`, mantendo o mais antigo no lugar.
+- **Encontra pastas vazias e arquivos de lixo** (`Thumbs.db`,
+  `desktop.ini`, `.tmp`, `.crdownload`, `.log` etc.) na tela **Limpeza**.
+  Arquivos de lixo são movidos para `_Lixeira/` (nunca apagados de
+  verdade); pastas vazias são removidas mas podem ser recriadas pelo
+  Histórico.
+- **Preview de cada coisa, antes de qualquer alteração**: as telas
+  **Revisar alterações** e **Limpeza** mostram exatamente o que vai
+  acontecer — origem, destino, categoria, tags, confiança e motivo — e
+  você escolhe o que aprovar.
+- **100% reversível**: toda operação (organização ou limpeza) fica
+  registrada no **Histórico**, com um botão **DESFAZER** que devolve tudo
+  — inclusive recria pastas vazias que foram removidas.
+- **Gera planilha** (botão "GERAR PLANILHA" no Dashboard): exporta todo o
+  catálogo — ID, nome, categoria, projeto/jogo, tags, tamanho, caminho,
+  hash e data — em `.xlsx` (ou `.csv` sem o openpyxl).
+- **Regras personalizadas**: diga que arquivos com "meuprojeto" no nome
+  sempre vão para uma pasta específica — tem prioridade sobre a
+  classificação automática.
+- **Pastas protegidas**: pastas que o F.R.I.D.A.Y. nunca toca (por padrão:
+  `Downloads`, `node_modules`, `.git`, `AppData`).
+- **Três modos** (SAFE / SMART / AUTO) salvos nas regras, para guiar o
+  quanto o F.R.I.D.A.Y. deveria confiar nas próprias decisões — SAFE é o
+  mais indicado para começar.
 
-projetos são tratados de um jeito diferente.
+## Estrutura de pastas criada
 
-se o F.R.I.D.A.Y. encontrar coisas como:
-
-```text
-.git
-package.json
-requirements.txt
-.prproj
-.aep
 ```
-
-ele entende que provavelmente aquilo é um projeto e move a pasta inteira.
-
-```text
-PROJECTS/
-├── CODE/
-│   └── MeuProjeto/
-│
-└── EDITING/
-    └── MeuVideo/
-```
-
-ele não reorganiza os arquivos de dentro do projeto.
-
-isso evita quebrar estrutura, dependências ou qualquer outra coisa importante.
-
----
-
-### duplicados
-
-também existe um sistema pra encontrar arquivos duplicados.
-
-em vez de olhar só o nome, o F.R.I.D.A.Y. usa **hash do conteúdo** pra saber se dois arquivos são realmente iguais.
-
-os duplicados vão pra:
-
-```text
-_Duplicados/
-```
-
-o original continua onde estava.
-
-**nada é apagado.**
-
----
-
-## antes de organizar
-
-não precisa confiar cegamente no programa.
-
-o modo de revisão mostra o que ele pretende fazer antes de aplicar qualquer mudança:
-
-* qual arquivo vai ser movido
-* pra onde
-* nível de confiança
-* motivo da classificação
-
-você escolhe o que quer aprovar.
-
----
-
-## histórico
-
-toda mudança feita pelo F.R.I.D.A.Y. fica registrada.
-
-se alguma coisa for parar no lugar errado:
-
-```text
-Histórico → DESFAZER
-```
-
-o arquivo volta pro lugar exato de onde veio.
-
----
-
-## regras personalizadas
-
-também dá pra criar suas próprias regras.
-
-por exemplo:
-
-```text
-"meuprojeto" → PROJECTS/CODE/MeuProjeto
-```
-
-essas regras têm prioridade sobre a classificação automática.
-
----
-
-## modos
-
-existem três modos:
-
-**SAFE**
-mais conservador. bom pra começar e revisar tudo.
-
-**SMART**
-deixa o F.R.I.D.A.Y. tomar mais decisões sozinho.
-
-**AUTO**
-focado em automatizar o máximo possível.
-
----
-
-## pastas protegidas
-
-você pode escolher pastas que o F.R.I.D.A.Y. nunca deve mexer.
-
-algumas já ficam protegidas por padrão:
-
-```text
-Downloads
-node_modules
-.git
-AppData
-```
-
----
-
-## estrutura
-
-depois de organizar, a pasta pode ficar assim:
-
-```text
 SUA_PASTA/
-├── Documentos/
-├── Planilhas/
-├── PDFs/
-├── Imagens/
-├── Musica/
-├── Compactados/
-├── Programas/
-├── Codigo/
-│
-├── VIDEOS/
-│   └── GAMES/
-│       └── <Jogo>/
-│           ├── Clips/
-│           ├── Highlights/
-│           ├── Gameplay/
-│           └── Recordings/
-│
-├── PROJECTS/
-│   ├── CODE/
-│   └── EDITING/
-│
-├── UNSORTED/
+├── Documentos/  Planilhas/  PDFs/  Imagens/  Musica/  Compactados/
+├── Programas/   Codigo/
+├── VIDEOS/GAMES/<Jogo>/{Clips,Highlights,Gameplay,Recordings}/
+├── PROJECTS/{CODE,EDITING}/<nome do projeto>/
+├── UNSORTED/            ← baixa confiança, para você revisar
 ├── _Duplicados/
-└── .friday/
+├── _Lixeira/            ← arquivos de lixo movidos pela Limpeza
+└── .friday/             ← catálogo, regras e logs internos (não mexa aqui)
+    ├── friday_regras.json
+    ├── catalogo.json
+    ├── friday_catalogo.xlsx   ← gerado ao clicar em "GERAR PLANILHA"
+    └── operacao_*.json        ← um log por operação, usado no Undo
 ```
 
-`UNSORTED` é onde ficam as coisas que o F.R.I.D.A.Y. não conseguiu identificar direito.
+## Arquivos
 
-`.friday` guarda os arquivos internos do programa, como histórico e regras.
+- `friday_core.py` — todo o motor: classificação, projetos, catálogo
+  (IDs/tags), duplicados, pastas vazias, limpeza, geração de planilha,
+  histórico e undo. Pode ser usado sozinho, sem a interface, se você
+  quiser automatizar por script.
+- `friday_gui.py` — a interface gráfica (Dashboard, Revisar alterações,
+  Limpeza, Histórico, Regras).
 
----
+## Próximos passos naturais
 
-## o que ainda falta
-
-o projeto ainda está no começo e tem bastante coisa que pode entrar depois.
-
-algumas ideias:
-
-* análise de metadados de vídeo
-* identificação melhor de jogos
-* aprendizado com as correções do usuário
-* busca usando linguagem natural
-* classificação usando IA
-* mais automações
-* uma interface melhor
-* integração maior com a identidade da Axolotl BR
-
-a estrutura atual já foi feita pensando nisso.
-
-o sistema de classificação fica principalmente no `classificar_arquivo()`, então dá pra adicionar novas formas de identificar arquivos sem precisar refazer tudo.
-
----
-
-## arquivos
-
-```text
-friday_core.py
-```
-
-é o motor do F.R.I.D.A.Y.
-
-cuida da classificação, projetos, duplicados, aplicação das mudanças, histórico e undo.
-
-```text
-friday_gui.py
-```
-
-é a interface gráfica.
-
-dashboard, revisão, histórico e regras.
-
----
-
-## axolotl BR
-
-o F.R.I.D.A.Y. é um dos projetos da **Axolotl BR**.
-
-a ideia é fazer uma ferramenta que realmente seja útil pra quem tem um pc cheio de projetos, jogos, clipes, vídeos, código e um monte de arquivo espalhado.
-
-sem complicar.
-
-sem mandar seus arquivos pra algum servidor.
-
-e principalmente:
-
-**sem apagar suas coisas.**
-
----
-
-*f.r.i.d.a.y. — understand first. organize second. delete never.*
-
-**axolotl BR — player pra player.**
+A base já foi pensada para crescer: o motor de classificação é uma função
+só (`classificar_arquivo` em `friday_core.py`), então dá pra plugar ali
+coisas como extração de metadados de vídeo com `ffprobe`, aprendizado a
+partir de correções do usuário na interface, busca em linguagem natural
+sobre o catálogo, ou uma identidade visual ainda mais elaborada da
+Axolotl BR. Me diga qual dessas você quer primeiro.
