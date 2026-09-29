@@ -61,7 +61,7 @@ EXT_LIXO = {".tmp", ".temp", ".bak", ".crdownload", ".part", ".download", ".log"
 
 def regras_padrao():
     return {
-        "modo": "SMART",  # SAFE | SMART | AUTO
+        "modo": "SAFE",  # SAFE | SMART | AUTO
         "pastas_protegidas": ["Downloads", "node_modules", ".git", "AppData", "System32"],
         "jogos": ["CS2", "Counter-Strike", "Deadlock", "Minecraft", "Valorant",
                   "League of Legends", "LOL", "Apex Legends", "Fortnite", "GTA V", "GTA",
